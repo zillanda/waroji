@@ -7,10 +7,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func CheckConnection() {
+func GetConnection() *pgx.Conn {
 	ctx := context.Background()
-	conn, err := pgx.Connect(ctx, "postgres://postgres:Hatsu2zm.sankyu:@localhost:5432/postgres")
 
+	conn, err := pgx.Connect(ctx, "postgres://postgres:Hatsu2zm.sankyu:@localhost:5432/postgres")
 	if err != nil {
 		panic(err)
 	}
@@ -20,4 +20,6 @@ func CheckConnection() {
 	}
 
 	fmt.Println("Подключение к БД успешно! http://localhost:5432")
+
+	return conn
 }

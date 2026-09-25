@@ -27,6 +27,7 @@ async function addWord() {
       meaning,
     }),
   });
+    await getWords();
 }
 
   async function getWords() {
