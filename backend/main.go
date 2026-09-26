@@ -128,6 +128,51 @@ func deleteWord(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 	fmt.Println("ID для удаления:", id)
 }
 
+func updateWord(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
+	fmt.Println("Метод:", r.Method)
+
+	idString := strings.TrimPrefix(r.URL.Path, "/words/")
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		fmt.Println("Ошибка при получении ID:", err)
+		return
+	}
+
+	fmt.Println("ID для обновления:", id)
+
+	var word WordInfo
+
+	err = json.NewDecoder(r.Body).Decode(&word)
+	if err != nil {
+		fmt.Println("Ошибка при чтении JSON:", err)
+		return
+	}
+
+	_, err = conn.Exec(
+		context.Background(),
+		"UPDATE words SET word = $1, reading = $2, meaning = $3 WHERE id = $4",
+		word.Word,
+		word.Reading,
+		word.Meaning,
+		id,
+	)
+	if err != nil {
+		fmt.Println("Ошибка при обновлении слова:", err)
+		return
+	}
+
+	fmt.Println("Слово обновлено!")
+}
+
 func main() {
 
 	conn := connection.GetConnection()
@@ -140,7 +185,22 @@ func main() {
 		displayWordList(w, r, conn)
 	})
 	http.HandleFunc("/words/", func(w http.ResponseWriter, r *http.Request) {
-		deleteWord(w, r, conn)
+		fmt.Println("Пришёл запрос:", r.Method, r.URL.Path)
+
+		if r.Method == "OPTIONS" {
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
+			w.Header().Set("Access-Control-Allow-Methods", "DELETE, PUT, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			return
+		}
+
+		if r.Method == "DELETE" {
+			deleteWord(w, r, conn)
+		}
+
+		if r.Method == "PUT" {
+			updateWord(w, r, conn)
+		}
 	})
 	fmt.Println("Сервер запущен на http://localhost:8080")
 
