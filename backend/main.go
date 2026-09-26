@@ -23,7 +23,7 @@ var wordList = make([]WordInfo, 0)
 
 func displayWordList(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
-	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	if r.Method == "OPTIONS" {
@@ -100,6 +100,12 @@ func getWord(w http.ResponseWriter, r *http.Request) {
 
 func deleteWord(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == "OPTIONS" {
+		return
+	}
 
 	idString := strings.TrimPrefix(r.URL.Path, "/words/")
 
@@ -108,13 +114,14 @@ func deleteWord(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 		fmt.Println("Ошибка при удалении слова:", err)
 		return
 	}
+
 	_, err = conn.Exec(
 		context.Background(),
 		"DELETE FROM words WHERE id = $1",
 		id,
 	)
 	if err != nil {
-		fmt.Println("Некорректный ID:", idString)
+		fmt.Println("Ошибка при удалении слова:", err)
 		return
 	}
 

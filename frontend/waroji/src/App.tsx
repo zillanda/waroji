@@ -36,7 +36,9 @@ async function deleteWord(id: number) {
     method: "DELETE",
   });
 
-  await getWords();
+  console.log("Удаляем из React:", id);
+
+  setWords((words) => words.filter((word) => word.id !== id));
 }
 
 async function getWords() {
@@ -63,7 +65,7 @@ async function getWords() {
       {showWords && (
         <ul>
 {words.map((word) => (
-  <li key={word.word}>
+  <li key={word.id}>
     {word.word} — {word.reading} — {word.meaning}
     <button onClick={() => deleteWord(word.id)}>
       Удалить
