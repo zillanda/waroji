@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	connection "waroji/database"
 
 	"github.com/jackc/pgx/v5"
 )
 
 type WordInfo struct {
+	ID      int    `json:"id"`
 	Word    string `json:"word"`
 	Reading string `json:"reading"`
 	Meaning string `json:"meaning"`
@@ -60,7 +63,7 @@ func displayWordList(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 
 	rows, err := conn.Query(
 		context.Background(),
-		"SELECT word, reading, meaning FROM words",
+		"SELECT ID, word, reading, meaning FROM words",
 	)
 	if err != nil {
 		fmt.Println("Ошибка при получении слов:", err)
@@ -73,7 +76,7 @@ func displayWordList(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 	for rows.Next() {
 		var word WordInfo
 
-		err := rows.Scan(&word.Word, &word.Reading, &word.Meaning)
+		err := rows.Scan(&word.ID, &word.Word, &word.Reading, &word.Meaning)
 		if err != nil {
 			fmt.Println("Ошибка при чтении слова:", err)
 			return
@@ -95,32 +98,32 @@ func getWord(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Path)
 }
 
+func deleteWord(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
+
+	idString := strings.TrimPrefix(r.URL.Path, "/words/")
+
+	id, err := strconv.Atoi(idString)
+	if err != nil {
+		fmt.Println("Ошибка при удалении слова:", err)
+		return
+	}
+	_, err = conn.Exec(
+		context.Background(),
+		"DELETE FROM words WHERE id = $1",
+		id,
+	)
+	if err != nil {
+		fmt.Println("Некорректный ID:", idString)
+		return
+	}
+
+	fmt.Println("ID для удаления:", id)
+}
+
 func main() {
 
 	conn := connection.GetConnection()
-
-	// rows, err := conn.Query(context.Background(), "SELECT id, word, reading, meaning FROM words")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer rows.Close()
-	// for rows.Next() {
-	// 	var id int
-	// 	var word string
-	// 	var reading string
-	// 	var meaning string
-
-	// 	err := rows.Scan(&id, &word, &reading, &meaning)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	wordList = append(wordList, WordInfo{
-	// 		Word:    word,
-	// 		Reading: reading,
-	// 		Meaning: meaning,
-	// 	})
-	// }
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Waroji запущен!")
@@ -129,8 +132,9 @@ func main() {
 	http.HandleFunc("/words", func(w http.ResponseWriter, r *http.Request) {
 		displayWordList(w, r, conn)
 	})
-	http.HandleFunc("/words/", getWord)
-
+	http.HandleFunc("/words/", func(w http.ResponseWriter, r *http.Request) {
+		deleteWord(w, r, conn)
+	})
 	fmt.Println("Сервер запущен на http://localhost:8080")
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 type WordInfo = {
+  id: number;
   word: string;
   reading: string;
   meaning: string;
@@ -30,12 +31,22 @@ async function addWord() {
     await getWords();
 }
 
-  async function getWords() {
-    const response = await fetch("http://localhost:8080/words");
-    const data = await response.json();
+async function deleteWord(id: number) {
+  await fetch(`http://localhost:8080/words/${id}`, {
+    method: "DELETE",
+  });
 
-    setWords(data);
-  }
+  await getWords();
+}
+
+async function getWords() {
+  const response = await fetch("http://localhost:8080/words");
+  const data = await response.json();
+
+  console.log(data);
+
+  setWords(data);
+}
 
   useEffect(() => {
   getWords();
@@ -51,12 +62,14 @@ async function addWord() {
       
       {showWords && (
         <ul>
-          {words.map((word) => (
-            <li key={word.word}>
-              {word.word} — {word.reading} — {word.meaning}
-            </li>
-          ))}
-        </ul>
+{words.map((word) => (
+  <li key={word.word}>
+    {word.word} — {word.reading} — {word.meaning}
+    <button onClick={() => deleteWord(word.id)}>
+      Удалить
+    </button>
+  </li>
+))}        </ul>
       )}
 <label>
   Слово:
