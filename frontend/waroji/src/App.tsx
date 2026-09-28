@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Title } from "./components/Title";
 
 type WordInfo = {
   id: number;
@@ -92,8 +93,7 @@ function App() {
 
   return (
     <div>
-      <h1 className="text-4xl ">Waroji 和露辞</h1>
-
+      <Title />
       <button onClick={() => setShowWords(!showWords)}>
         {showWords ? "Скрыть слова" : "Показать слова"}
       </button>
