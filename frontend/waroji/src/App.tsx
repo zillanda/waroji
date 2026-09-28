@@ -92,7 +92,7 @@ function App() {
 
   return (
     <div>
-      <h1>Waroji 和露辞</h1>
+      <h1 className="text-4xl ">Waroji 和露辞</h1>
 
       <button onClick={() => setShowWords(!showWords)}>
         {showWords ? "Скрыть слова" : "Показать слова"}
