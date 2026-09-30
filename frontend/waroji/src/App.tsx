@@ -18,6 +18,7 @@ function App() {
   const [reading, setReading] = useState("");
   const [meaning, setMeaning] = useState("");
   const [showWords, setShowWords] = useState(true);
+  const [search, setSearch] = useState("");
 
   async function addWord() {
     await fetch("http://localhost:8080/words", {
@@ -78,14 +79,19 @@ function App() {
     setEditingId(null);
   }
 
-  async function getWords() {
-    const response = await fetch("http://localhost:8080/words");
-    const data = await response.json();
+async function getWords(search = "") {
+  console.log("Поисковый запрос:", search);
 
-    console.log(data);
+  const response = await fetch(
+    `http://localhost:8080/words?search=${search}`
+  );
 
-    setWords(data);
-  }
+  const data = await response.json();
+
+  console.log(data);
+
+  setWords(data);
+}
 
   useEffect(() => {
     getWords();
@@ -94,6 +100,15 @@ function App() {
   return (
     <div>
       <Title />
+      <input
+        type="text"
+        placeholder="Поиск..."
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+      />
+      <button onClick={() => getWords(search)}>
+  Найти
+</button>
       <button onClick={() => setShowWords(!showWords)}>
         {showWords ? "Скрыть слова" : "Показать слова"}
       </button>

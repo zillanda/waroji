@@ -60,10 +60,16 @@ func displayWordList(w http.ResponseWriter, r *http.Request, conn *pgx.Conn) {
 
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5174")
 	w.Header().Set("Content-Type", "application/json")
-
+	search := r.URL.Query().Get("search")
+	fmt.Println("Поиск:", search)
 	rows, err := conn.Query(
 		context.Background(),
-		"SELECT ID, word, reading, meaning FROM words",
+		`SELECT ID, word, reading, meaning
+		FROM words
+		WHERE word ILIKE '%' || $1 || '%'
+			OR reading ILIKE '%' || $1 || '%'
+			OR meaning ILIKE '%' || $1 || '%'`,
+		search,
 	)
 	if err != nil {
 		fmt.Println("Ошибка при получении слов:", err)
