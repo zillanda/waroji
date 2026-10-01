@@ -59,9 +59,9 @@ function Home() {
     getWords();
   }, []);
   return (
-<div className="min-h-screen w-full overflow-x-hidden bg-gray-100 px-4 pb-5 pt-2 sm:px-6 sm:pb-8 sm:pt-4">   
-           <div className="mx-auto w-full max-w-4xl">
-        <div className="mt-6 grid w-full gap-4 sm:mt-8 sm:gap-6">
+    <div className="min-h-screen w-full overflow-x-hidden bg-gray-100 px-4 pb-5 sm:px-6 sm:pb-8 sm:pt-4">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="mt-2 grid w-full gap-4 sm:gap-6">
           {/* Поиск */}
           <section className="w-full rounded-xl bg-white p-4 shadow-sm sm:p-6">
             <h2 className="mb-4 text-lg font-semibold sm:text-xl">
