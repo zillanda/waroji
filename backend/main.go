@@ -190,6 +190,23 @@ func main() {
 	http.HandleFunc("/words", func(w http.ResponseWriter, r *http.Request) {
 		displayWordList(w, r, conn)
 	})
+
+	http.HandleFunc("/auth/register", func(w http.ResponseWriter, r *http.Request) {
+		registerHandler(w, r, conn)
+	})
+
+	http.HandleFunc("/auth/login", func(w http.ResponseWriter, r *http.Request) {
+		loginHandler(w, r, conn)
+	})
+
+	http.HandleFunc("/auth/me", func(w http.ResponseWriter, r *http.Request) {
+		meHandler(w, r, conn)
+	})
+
+	http.HandleFunc("/auth/logout", func(w http.ResponseWriter, r *http.Request) {
+		logoutHandler(w, r, conn)
+	})
+
 	http.HandleFunc("/words/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Пришёл запрос:", r.Method, r.URL.Path)
 
